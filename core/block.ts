@@ -1094,8 +1094,10 @@ export class Block implements IASTNodeLocation, IDeletable {
     for (let i = 0, input; (input = this.inputList[i]); i++) {
       for (let j = 0, field; (field = input.fieldRow[j]); j++) {
         if (field.referencesVariables()) {
-          // NOTE: This only applies to `FieldVariable`, a `Field<string>`
-          vars.push(field.getValue() as string);
+          const variable = field.getVariable();
+          if (variable) {
+            vars.push(variable.getId());
+          }
         }
       }
     }
@@ -1110,18 +1112,11 @@ export class Block implements IASTNodeLocation, IDeletable {
    */
   getVarModels(): VariableModel[] {
     const vars = [];
-    for (let i = 0, input; (input = this.inputList[i]); i++) {
-      for (let j = 0, field; (field = input.fieldRow[j]); j++) {
-        if (field.referencesVariables()) {
-          const model = this.workspace.getVariableById(
-            field.getValue() as string,
-          );
-          // Check if the variable actually exists (and isn't just a potential
-          // variable).
-          if (model) {
-            vars.push(model);
-          }
-        }
+    for (const id of this.getVars()) {
+      const model = this.workspace.getVariableById(id);
+      // Check if the variable exists (and isn't just a potential variable).
+      if (model) {
+        vars.push(model);
       }
     }
     return vars;
@@ -1139,7 +1134,7 @@ export class Block implements IASTNodeLocation, IDeletable {
       for (let j = 0, field; (field = input.fieldRow[j]); j++) {
         if (
           field.referencesVariables() &&
-          variable.getId() === field.getValue()
+          variable.getId() === field.getVariable()?.getId()
         ) {
           field.refreshVariableName();
         }
@@ -1158,7 +1153,10 @@ export class Block implements IASTNodeLocation, IDeletable {
   renameVarById(oldId: string, newId: string) {
     for (let i = 0, input; (input = this.inputList[i]); i++) {
       for (let j = 0, field; (field = input.fieldRow[j]); j++) {
-        if (field.referencesVariables() && oldId === field.getValue()) {
+        if (
+          field.referencesVariables() &&
+          oldId === field.getVariable()?.getId()
+        ) {
           field.setValue(newId);
         }
       }

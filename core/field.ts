@@ -43,6 +43,7 @@ import * as utilsXml from './utils/xml.js';
 import * as WidgetDiv from './widgetdiv.js';
 import type {WorkspaceSvg} from './workspace_svg.js';
 import {ISerializable} from './interfaces/i_serializable.js';
+import {VariableModel} from './variable_model.js';
 
 /**
  * A function that is called to validate changes to the field's value before
@@ -1261,6 +1262,16 @@ export abstract class Field<T = any>
    */
   referencesVariables(): boolean {
     return false;
+  }
+
+  /**
+   * Get the variable model if this field refers to one.
+   *
+   * @returns The field's variable, or null if none exists.
+   * @internal
+   */
+  getVariable(): VariableModel | null {
+    return null;
   }
 
   /**
