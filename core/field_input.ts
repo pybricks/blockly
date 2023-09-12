@@ -317,6 +317,7 @@ export abstract class FieldInput<T extends InputTypes> extends Field<
         if (text !== null) {
           this.setValue(this.getValueFromEditorText_(text));
         }
+        this.onFinishEditing_(this.value_);
       },
     );
   }
